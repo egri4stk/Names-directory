@@ -183,6 +183,4 @@ Temporary Items
 .apdisk
 
 # App specific
-.sql
-*.sql
-resources/
+prod-full-name.sql

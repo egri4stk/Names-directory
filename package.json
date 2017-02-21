@@ -1,0 +1,29 @@
+{
+  "name": "probook",
+  "version": "1.0.0",
+  "description": "application to separate directory names",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/egri4stk/Names-directory.git"
+  },
+  "keywords": [
+    "chex59"
+  ],
+  "author": "Egor Grachok",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/egri4stk/Names-directory/issues"
+  },
+  "homepage": "https://github.com/egri4stk/Names-directory#readme",
+  "dependencies": {
+    "async": "^2.1.5",
+    "knex": "^0.12.7",
+    "mysql": "^2.13.0",
+    "path": "^0.12.7",
+    "uuid": "^3.0.1"
+  }
+}
