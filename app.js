@@ -1,8 +1,3 @@
-console.log('hello world');
-var str = 'z';
-var code = str.charCodeAt();
-console.log(code);
+const ww = require('./logic/wordWeight.js');
 
-for(var i=0; i<3; i++){
-	console.log(i);
-}
+
