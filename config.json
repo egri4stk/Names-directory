@@ -1,5 +1,6 @@
 {
-    "first_level_division": 100,
-    "second_level_division": 100,
-    "MAX list length": 300
+    "firstLevelLength": 100,
+    "secondLevelLength": 100,
+    "maxListLength": 300,
+    "allowableLimit" : 100
 }
