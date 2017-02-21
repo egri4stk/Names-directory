@@ -34,12 +34,14 @@ function maxWithIndex(record, number, index) {
 	return (number > record.max) ? {max: number, index: index} : record;
 }
 
-function getLastElementInInterval(array, dimension) {
+exports.optimalBorder = function (array, dimension) {
 	return array.reduce(function (value, item, i, arr) {
 		let difference = (i < arr.length - 1) ? abs(getStringCodeWeight(dimension, item), getStringCodeWeight(dimension, arr[i + 1])) : 0;
 		return maxWithIndex(value, difference, i);
 	}, {max: 0, index: 0}).index;
+};
 
-}
+exports.getIntervalName = function (first, second, dimension) {
+	return first.substring(0, dimension).toUpperCase() + '-' + second.substring(0, dimension).toUpperCase();
+};
 
-exports.optimal = getLastElementInInterval;
