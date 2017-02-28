@@ -23,10 +23,11 @@ function maxWithIndex(record, number, index) {
 }
 
 exports.optimalBorder = function (array, dimension) {
-	return array.reduce(function (value, item, i, arr) {
+	let border =  array.reduce(function (value, item, i, arr) {
 		let difference = (i < arr.length - 1) ? abs(getStringCodeWeight(dimension, item), getStringCodeWeight(dimension, arr[i + 1])) : 0;
 		return maxWithIndex(value, difference, i);
 	}, {max: 0, index: 0}).index;
+	return border;
 };
 
 exports.getIntervalName = function (first, second, dimension) {

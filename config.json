@@ -1,5 +1,6 @@
 {
-	"firstLevelLength": 100,
+	"firstLevelLength": 10,
+	"eps": 100,
 	"secondLevelLength": 100,
 	"maxListLength": 300,
 	"allowableLimit": 100,

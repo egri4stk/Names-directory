@@ -62,11 +62,11 @@ function sliceArray(a, n, balanced) {
 	return {array: out, indexes: indexes};
 }
 
-function getEpsSurround(array, border, eps) {
+function getEpsSurround(array, border, eps, callback) {
 	if ((border - eps) < 0 || (border + eps + 1) > array.length) {
-		return;
+		callback('big eps');
 	}
-	return array.slice(border - eps, border + eps + 1);
+	callback(null, array.slice(border - eps, border + eps + 1));
 }
 
 exports.getPotentialBordersArray = getPotentialBordersArray;
