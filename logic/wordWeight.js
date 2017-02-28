@@ -14,18 +14,6 @@ function getStringCodeWeight(dimension, str) {
 	return Number(strCode);
 }
 
-function getArrayOfCodes(dimension, str) {
-	let codesArray = [];
-	for (let i = 0; i < dimension; i++) {
-		codesArray.push(str.charCodeAt(i));
-	}
-	return codesArray;
-}
-
-function strInfo(dimension, str) {
-	console.log(getStringCodeWeight(dimension, str), getArrayOfCodes(dimension, str))
-}
-
 function abs(a, b) {
 	return Math.abs(a - b);
 }

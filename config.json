@@ -1,6 +1,11 @@
 {
-    "firstLevelLength": 100,
-    "secondLevelLength": 100,
-    "maxListLength": 300,
-    "allowableLimit" : 100
+	"firstLevelLength": 100,
+	"secondLevelLength": 100,
+	"maxListLength": 300,
+	"allowableLimit": 100,
+	"dbName": "test",
+	"dbPass": "chex59",
+	"dbHost": "localhost",
+	"dbUser": "root",
+	"replacedSymbols" : [",",".",")","("]
 }
