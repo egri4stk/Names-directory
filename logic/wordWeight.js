@@ -1,11 +1,25 @@
+function LeftPad(n, width, z) {
+	z = z || '0';
+	n = n + '';
+	return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
+function RightPad(n, width, z) {
+	z = z || '0';
+	n = n + '';
+	return n.length >= width ? n : n + new Array(width - n.length + 1).join(z);
+}
+
 function getStringCodeWeight(dimension, str) {
 	let codesArray = [];
 	for (let i = 0; i < dimension; i++) {
 		codesArray.push(str.charCodeAt(i));
 	}
 	let strCode = '';
-	let stringCodesArray = codesArray.map(function (element) {
-		return (element > 99) ? element.toString() : '0' + element.toString();
+	let stringCodesArray = codesArray.map(function (element, i) {
+		if (i === 0) {
+			return RightPad(element, 5, 0);
+		}
+		return LeftPad(element,5,0)
 	});
 
 	stringCodesArray.forEach(function (element) {
@@ -23,14 +37,16 @@ function maxWithIndex(record, number, index) {
 }
 
 exports.optimalBorder = function (array, dimension) {
-	let border =  array.reduce(function (value, item, i, arr) {
-		let difference = (i < arr.length - 1) ? abs(getStringCodeWeight(dimension, item), getStringCodeWeight(dimension, arr[i + 1])) : 0;
+	let index = array.reduce(function (value, item, i, arr) {
+		let difference = (i < arr.length - 1) ? abs(getStringCodeWeight(dimension, item.fullname), getStringCodeWeight(dimension, arr[i + 1].fullname)) : 0;
 		return maxWithIndex(value, difference, i);
 	}, {max: 0, index: 0}).index;
-	return border;
+	let persons = {last: array[index].fullname, new: array[index+1].fullname};
+	return {index: index, persons: persons};
 };
 
 exports.getIntervalName = function (first, second, dimension) {
 	return first.substring(0, dimension).toUpperCase() + '-' + second.substring(0, dimension).toUpperCase();
 };
 
+exports.getStringCodeWeight = getStringCodeWeight;

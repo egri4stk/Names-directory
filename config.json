@@ -1,12 +1,13 @@
 {
 	"firstLevelLength": 10,
-	"eps": 100,
+	"eps": 50,
+	"epsStep": 10,
 	"secondLevelLength": 100,
 	"maxListLength": 300,
 	"allowableLimit": 100,
 	"dbName": "test",
 	"dbPass": "chex59",
-	"dbHost": "localhost",
+	"dbHost": "127.0.0.1",
 	"dbUser": "root",
 	"replacedSymbols" : [",",".",")","("]
 }
