@@ -30,71 +30,78 @@ function getPotentialBordersArray(length, n, callback) {
 			endBorders.push(element - 1);
 		}
 	});
-	// endBorders.push(length);   last border may be not release;
+	endBorders.push(length-1);   //last border may be not release;
 	callback(null, endBorders);
 }
+function getEpsFromConfig(dimension){
+	switch (dimension) {
+		case 2:
+			return config.eps1;
+			break;
+		case 3:
+			return config.eps2;
+			break;
+		default:
+			return config.eps1;
+	}
+}
+function borderRec(length, n, skip, arr, personsBorders, callback) {
+	if (length <= 0 || n <= 0) {
+		callback(null, {indexes: arr, info: personsBorders});
+		return;
+	}
 
+	let a = getSingleBorder(length, n, offset);
+	n--;
+	if (n > 0) {
+		getSurround(a + skip, eps, dimension, offset, function (err, result) {
+			if (!err) {
+				let optimalInfo = ww.optimalBorder(result.data, dimension);
+				let optimalId = optimalInfo.index;
+				personsBorders.push(optimalInfo.persons);
+				a = a - result.eps + optimalId;
+				length -= a;
+				a += skip;
+				arr.push(a);
+				borderRec(length, n, a, arr, callback);
+			}
+		});
+	}
+	else {
+		arr.push(a + skip - 1);
+		borderRec(length, n, a, arr, callback);
+	}
+}
 
-function getBordersRec(length, n, dimension, callback) {
-	let eps = config.eps;
+function getSingleBorder (length, n, skip) {
+	if (n > length) {
+		console.log('n > length. error');
+		return length + skip;
+	}
+	if (n < 2) {
+		return length + skip;
+	}
+	if (length % n === 0) {
+		return Math.floor(length / n) + skip;
+	}
+	else {
+		return Math.ceil(length / n) + skip;
+	}
+}
+
+function getBordersRec(length, n, dimension, offset, callback) {
+	let eps = getEpsFromConfig(dimension);
 	let arr = [];
 	let personsBorders = [];
-
-
 	if (length === 0 || n === 0) {
 		callback(null, {indexes: arr, info: personsBorders});
 		return;
 	}
 
-
-	let borderRec = function (length, n, skip, arr, callback) {
-		if (length <= 0 || n <= 0) {
-			callback(null, {indexes: arr, info: personsBorders});
-			return;
-		}
-
-		let a = getSingleBorder(length, n);
-		n--;
-		if (n > 0) {
-			getSurround(a + skip, eps, dimension, function (err, result) {
-				if (!err) {
-					let optimalInfo = ww.optimalBorder(result.data, 2);
-					let optimalId = optimalInfo.index;
-					personsBorders.push(optimalInfo.persons);
-					a = a - result.eps + optimalId;
-					length -= a;
-					a += skip;
-					arr.push(a);
-					borderRec(length, n, a, arr, callback);
-				}
-			});
-		}
-		else {
-			arr.push(a + skip - 1);
-			borderRec(length, n, a, arr, callback);
-		}
-	};
-
-	let getSingleBorder = function (length, n) {
-		if (n > length) {
-			console.log('n > length. error');
-			return length;
-		}
-		if (n < 2) {
-			return length;
-		}
-		if (length % n === 0) {
-			return Math.floor(length / n);
-		}
-		else {
-			return Math.ceil(length / n);
-		}
-	};
-
-	let a = getSingleBorder(length, n); //first iteration
-	getSurround(a, eps, dimension, function (err, result) {
+	let a = getSingleBorder(length, n, offset); //first iteration
+	getSurround(a, eps, dimension, offset, function (err, result) {
 		if (!err) {
-			let optimalInfo = ww.optimalBorder(result.data, 2);
+			let optimalInfo = ww.optimalBorder(result.data, dimension);
 			let optimalId = optimalInfo.index;
 			personsBorders.push(optimalInfo.persons);
 			a = a - result.eps + optimalId;
@@ -102,10 +109,20 @@ function getBordersRec(length, n, dimension, callback) {
 			borderRec(length - a, n - 1, a, arr, callback);
 		}
 	});
-
 }
 
-function preEpsCalc(id, eps, dimension, iter, callback) {
+function preEpsCalc(id, eps, dimension, offset, callback) {
+	let epsStep;
+	switch (dimension) {
+		case 2:
+			epsStep = config.epsStep1;
+			break;
+		case 3:
+			epsStep = config.epsStep2;
+			break;
+		default:
+			epsStep = config.epsStep1;
+	}
 	let left = id - eps;
 	let right = id + eps;
 	if (left < 0) {
@@ -127,22 +144,29 @@ function preEpsCalc(id, eps, dimension, iter, callback) {
 		let left = ww.getStringCodeWeight(dimension, result[0][0].fullname);
 		let right = ww.getStringCodeWeight(dimension, result[1][0].fullname);
 		let diff = Math.abs(left - right);
+		if (diff === 0) {
+		//	console.log('diff = 0 ');
+		}
 		if (diff !== 0) {
 			callback(null, eps);
 			return;
 		}
 
-		eps += config.epsStep;
-		preEpsCalc(id, eps, dimension, iter, callback);
+		eps += epsStep;
+		if (offset !== 0 && eps >= offset) {
+			callback(null, eps - epsStep);
+			return;
+		}
+		preEpsCalc(id, eps, dimension, offset, callback);
 
 	})
 }
 
-function getSurround(id, eps, dimension, callback) {
+function getSurround(id, eps, dimension, offset, callback) {
 
 	async.waterfall([
 		function (callback) {
-			preEpsCalc(id, eps, dimension, 0, function (err, res) {
+			preEpsCalc(id, eps, dimension, offset, function (err, res) {
 				callback(err, res);
 			});
 		},
@@ -198,11 +222,11 @@ function getCollectionDev(info, dimension) {
 			interval = ww.getIntervalName('AAAAAA', persons[i].last, dimension);
 			literals.push(interval);
 		}
-		if (i === persons.length-1) {
+		if (i === persons.length - 1) {
 			interval = ww.getIntervalName(persons[i].new, 'WWWWWWW', dimension);
 			literals.push(interval);
 		}
-		if(i !== 0 && i!== persons.length-1) {
+		if (i !== 0 && i !== persons.length - 1) {
 			interval = ww.getIntervalName(persons[i - 1].new, persons[i].last, dimension);
 			literals.push(interval);
 		}
@@ -213,16 +237,16 @@ function getCollectionDev(info, dimension) {
 function getSmartInfo(result) {
 	console.log(result);
 	let sortDiff = result.indexes.map(function (element, i, arr) {
-		if( i !== 0){
-			return element - arr[i-1];
+		if (i !== 0) {
+			return element - arr[i - 1];
 		}
 		return element;
 	}).sort(function (a, b) {
 		return a > b;
 	});
-	let maxDiff = sortDiff[sortDiff.length-1] - sortDiff[0];
-	console.log('result max diff: '+ maxDiff);
-	console.log(getCollectionDev(result,2));
+	let maxDiff = sortDiff[sortDiff.length - 1] - sortDiff[0];
+	console.log('result max diff: ' + maxDiff);
+	// console.log(getCollectionDev(result, 2));
 }
 
 exports.getSmartInfo = getSmartInfo;
