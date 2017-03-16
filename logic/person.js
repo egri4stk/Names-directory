@@ -55,57 +55,5 @@ function getDBLength(callback) {
 	});
 }
 
-
-exports.func = function () {
-	let arrBorder = [];
-	async.waterfall([
-		function (callback) {
-			getDBLength(function (err, result) {
-				callback(err, result);
-			});
-		},
-		function (length, callback) {
-			wc.getBordersRec(length, config.firstLevelLength, 2, 0, callback);
-		}
-	], function (err, result) {
-		if (!err) {
-			wc.getSmartInfo(result);
-
-		// 			let nextLevelDivisions = result.indexes.map(function (item, i, arr) {
-		// 		if (i !== 0) {
-		// 			let offset = arr[i - 1];
-		// 			return {
-		// 				length: item - offset,
-		// 				offset: offset + 1
-		// 			}
-		// 		}
-		// 		else {
-		// 			return {
-		// 				length: item + 1,
-		// 				offset: 0
-		// 			}
-		// 		}
-		// 	});
-		// 	console.log(nextLevelDivisions);
-		//
-		// 	async.each(nextLevelDivisions, function (index, callback) {
-		// 		wc.getBordersRec(index.length, config.secondLevelLength, 3, index.offset, function (err, info) {
-		// 			if (!err) {
-		// 				arrBorder.push(info);
-		// 			}
-		//
-		// 			callback(err, info);
-		// 		})
-		//
-		// 	}, function (err) {
-		// 		if (err) {
-		// 			console.log(err);
-		// 		}
-		// 		let objAnsw = {arr: arrBorder};
-		// 		fw.writeObjectToFile(objAnsw);
-		// 	})
-		}
-	})
-};
-
 exports.getAllPerson = getAllPerson;
+exports.getDBLength = getDBLength;

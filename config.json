@@ -1,5 +1,6 @@
 {
-	"levelCountArray": [100,200],
+	"levelCountArray": [10,10],
+	"rootConfig": {"level": 0, "dimension":2, "offset":0},
 	"maxLeaveSize": 300,
 	"firstLevelLength": 10,
 	"eps1": 100,
@@ -7,8 +8,6 @@
 	"eps2": 100,
 	"epsStep2": 20,
 	"secondLevelLength": 10,
-	"maxListLength": 300,
-	"allowableLimit": 100,
 	"dbName": "test",
 	"dbPass": "chex59",
 	"dbHost": "127.0.0.1",

@@ -33,6 +33,8 @@ function getPotentialBordersArray(length, n, callback) {
 	endBorders.push(length-1);   //last border may be not release;
 	callback(null, endBorders);
 }
+
+
 function getEpsFromConfig(dimension){
 	switch (dimension) {
 		case 2:
@@ -45,49 +47,7 @@ function getEpsFromConfig(dimension){
 			return config.eps1;
 	}
 }
-function borderRec(length, n, skip, arr, personsBorders, callback) {
-	if (length <= 0 || n <= 0) {
-		callback(null, {indexes: arr, info: personsBorders});
-		return;
-	}
 
-	let a = getSingleBorder(length, n, offset);
-	n--;
-	if (n > 0) {
-		getSurround(a + skip, eps, dimension, offset, function (err, result) {
-			if (!err) {
-				let optimalInfo = ww.optimalBorder(result.data, dimension);
-				let optimalId = optimalInfo.index;
-				personsBorders.push(optimalInfo.persons);
-				a = a - result.eps + optimalId;
-				length -= a;
-				a += skip;
-				arr.push(a);
-				borderRec(length, n, a, arr, callback);
-			}
-		});
-	}
-	else {
-		arr.push(a + skip - 1);
-		borderRec(length, n, a, arr, callback);
-	}
-}
-
-function getSingleBorder (length, n, skip) {
-	if (n > length) {
-		console.log('n > length. error');
-		return length + skip;
-	}
-	if (n < 2) {
-		return length + skip;
-	}
-	if (length % n === 0) {
-		return Math.floor(length / n) + skip;
-	}
-	else {
-		return Math.ceil(length / n) + skip;
-	}
-}
 
 function getBordersRec(length, n, dimension, offset, callback) {
 	let eps = getEpsFromConfig(dimension);
@@ -97,7 +57,49 @@ function getBordersRec(length, n, dimension, offset, callback) {
 		callback(null, {indexes: arr, info: personsBorders});
 		return;
 	}
+	function borderRec(length, n, skip, arr, personsBorders, callback) {
+		if (length <= 0 || n <= 0) {
+			callback(null, {indexes: arr, info: personsBorders});
+			return;
+		}
 
+		let a = getSingleBorder(length, n, offset);
+		n--;
+		if (n > 0) {
+			getSurround(a + skip, eps, dimension, offset, function (err, result) {
+				if (!err) {
+					let optimalInfo = ww.optimalBorder(result.data, dimension);
+					let optimalId = optimalInfo.index;
+					personsBorders.push(optimalInfo.persons);
+					a = a - result.eps + optimalId;
+					length -= a;
+					a += skip;
+					arr.push(a);
+					borderRec(length, n, a, arr, callback);
+				}
+			});
+		}
+		else {
+			arr.push(a + skip - 1);
+			borderRec(length, n, a, arr, callback);
+		}
+	}
+
+	function getSingleBorder (length, n, skip) {
+		if (n > length) {
+			console.log('n > length. error');
+			return length + skip;
+		}
+		if (n < 2) {
+			return length + skip;
+		}
+		if (length % n === 0) {
+			return Math.floor(length / n) + skip;
+		}
+		else {
+			return Math.ceil(length / n) + skip;
+		}
+	}
 	let a = getSingleBorder(length, n, offset); //first iteration
 	getSurround(a, eps, dimension, offset, function (err, result) {
 		if (!err) {
@@ -233,7 +235,6 @@ function getCollectionDev(info, dimension) {
 	});
 	return [names, literals];
 }
-
 function getSmartInfo(result) {
 	console.log(result);
 	let sortDiff = result.indexes.map(function (element, i, arr) {
