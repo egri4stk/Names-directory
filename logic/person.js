@@ -1,10 +1,6 @@
 const db = require('./db.js').knex;
 const config = require('../config.json');
 const async = require('async');
-const ww = require('./wordWeight');
-const fw = require('./fileWriter');
-const wc = require('./wordCollection');
-
 
 exports.replaceSymbols = function (callback) {
 	async.each(config.replacedSymbols, function (file, callback) {
@@ -25,8 +21,8 @@ exports.replaceSymbols = function (callback) {
 	});
 };
 
-function getAllPerson(callback) {
-	db('person_version').select('id', 'fullname').orderBy('fullname')
+function getLimitOffset(limit, offset, params, callback) {
+	db('person_version').select(params).orderBy('fullname').limit(limit).offset(offset)
 		.then(function (data) {
 			callback(null, data);
 		})
@@ -35,16 +31,6 @@ function getAllPerson(callback) {
 		});
 }
 
-function getLimitOffset(limit, offset, callback) {
-	db('person_version').select('id', 'fullname').orderBy('fullname').limit(limit).offset(offset)
-		.then(function (data) {
-			callback(null, data);
-		})
-		.catch(function (err) {
-			callback(err);
-		});
-}
-exports.getLimitOffset = getLimitOffset;
 
 
 function getDBLength(callback) {
@@ -55,5 +41,5 @@ function getDBLength(callback) {
 	});
 }
 
-exports.getAllPerson = getAllPerson;
 exports.getDBLength = getDBLength;
+exports.getLimitOffset = getLimitOffset;
