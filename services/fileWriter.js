@@ -7,6 +7,7 @@ let writeObjectToFile = function (obj, path,callback) {
 	stream.write(str);
 	stream.end();
 	stream.on('finish',function () {
+		console.log('Recorded in file');
 		callback();
 	})
 };

@@ -1,4 +1,4 @@
-const app = require('./logic/structure');
+const app = require('./logic/namesTree');
 
 app.start(function (err) {
 	if(!err){
