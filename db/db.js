@@ -1,5 +1,6 @@
 const config = require('../config.json');
-exports.knex = require('knex')({
+
+let db = require('knex')({
 	client: 'mysql',
 	connection: {
 		host: config.dbHost || '127.0.0.1',
@@ -9,3 +10,5 @@ exports.knex = require('knex')({
 	},
 	pool: {min: 0, max: 10}
 });
+
+exports.db = db;

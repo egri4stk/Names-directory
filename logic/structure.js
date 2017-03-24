@@ -1,7 +1,7 @@
 const ww = require('./wordWeight.js');
 const config = require('../config.json');
-const db = require('./db.js');
-const person = require('./person.js');
+const db = require('./../db/db.js');
+const person = require('./../db/person.js');
 const fw = require('./fileWriter.js');
 const async = require('async');
 
@@ -240,8 +240,7 @@ function bordersRec(tree, finalCallback) {
 			if (!err) {
 				let surround = result.data;
 				let lEps = result.lEps;
-				let optimalInfo = ww.optimalBorder(surround, tree.dimension);
-				let optimalId = optimalInfo.index;
+				let optimalId = ww.optimalBorder(surround, tree.dimension);
 				let finalId = RealBorder + (optimalId - lEps);
 				let finalRelativeId = RelativeBorder + (optimalId - lEps);
 				finalCallback(null, {finalId: finalId, finalRelativeId: finalRelativeId});
@@ -315,10 +314,10 @@ function createClearFullTree(tree, clearTree) {
 function getFinalIds(fullTree, callback) {
 	async.waterfall([
 		function (callback) {
-			person.getLimitOffset(fullTree.right - fullTree.left + 1, fullTree.left, ['id'], function (err, res) {
+			person.getLimitOffset(fullTree.right - fullTree.left + 1, fullTree.left, ['fullname'], function (err, res) {
 				if (!err) {
 					let clearArray = res.map(function (element) {
-						return element.id;
+						return element.fullname;
 					});
 					callback(null, clearArray);
 					return;
@@ -343,39 +342,49 @@ function getFinalIds(fullTree, callback) {
 	], function (err, res) {
 		if (!err) {
 			callback(null, res);
+			return;
 		}
 		callback(err);
 	});
-
-
 }
 
-createRoot(function (err, tree) {
-	async.waterfall([function (callback) {
-		createNames(tree, callback);
-	}, function (tree, callback) {
-		async.each(tree.elements, function (file, callback) {
-			createNames(file, callback);
-		}, function (err) {
-			if (err) {
-				callback(err);
-				return;
-			}
-			callback(null, tree);
-		});
-
-	}], function (err, tree) {
-		if (!err) {
-			console.log('END of division');
-			let clearTree = new ClearNames(tree.interval, tree.leftRightIds.left, tree.leftRightIds.right);
-			createClearFullTree(tree, clearTree);
-			console.log('END of clear TREE');
-			getFinalIds(clearTree, function (err, res) {
-				fw.write(clearTree, "obj.json");
+function mainFunction(mainCallback) {
+	createRoot(function (err, tree) {
+		async.waterfall([function (callback) {
+			createNames(tree, callback);
+		}, function (tree, callback) {
+			async.each(tree.elements, function (file, callback) {
+				createNames(file, callback);
+			}, function (err) {
+				if (err) {
+					callback(err);
+					return;
+				}
+				callback(null, tree);
 			});
-		}
+
+		}], function (err, tree) {
+			if (!err) {
+				let clearTree = new ClearNames(tree.interval, tree.leftRightIds.left, tree.leftRightIds.right);
+				createClearFullTree(tree, clearTree);
+				getFinalIds(clearTree, function (err, res) {
+					if(!err){
+						fw.write(clearTree, "obj.json", function (err) {
+							mainCallback();
+						});
+					}
+					else{
+						mainCallback(err);
+					}
+				});
+			}
+		});
 	});
-});
+}
+
+module.exports.start = mainFunction;
+
+
 
 
 

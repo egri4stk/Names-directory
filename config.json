@@ -2,15 +2,11 @@
 	"levelCountArray": [10,10],
 	"rootConfig": {"level": 0, "dimension":2, "offset":0},
 	"maxLeaveSize": 300,
-	"firstLevelLength": 10,
-	"eps1": 100,
-	"epsStep1": 100,
-	"eps2": 100,
-	"epsStep2": 20,
-	"secondLevelLength": 10,
 	"dbName": "test",
 	"dbPass": "chex59",
 	"dbHost": "127.0.0.1",
 	"dbUser": "root",
-	"replacedSymbols" : [",",".",")","("]
+	"replacedSymbols" : [",",".",")","("],
+	"writeFileStyle" : 4,
+	"orderByParam" : "fullname"
 }

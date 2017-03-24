@@ -1,8 +1,8 @@
-const db = require('./db.js').knex;
+const db = require('./db.js').db;
 const config = require('../config.json');
 const async = require('async');
 
-exports.replaceSymbols = function (callback) {
+function replaceSymbols(callback) {
 	async.each(config.replacedSymbols, function (file, callback) {
 		db.raw('UPDATE person_version SET surname = REPLACE(surname, "' + file + '", ""), name = REPLACE(name,"' + file + '", "") WHERE surname like "%' + file + '%" or name like "%' + file + '%"')
 			.then(function () {
@@ -17,12 +17,13 @@ exports.replaceSymbols = function (callback) {
 			callback(err);
 			return;
 		}
-		callback('All was replaced!');
+		console.log('All symbols replaced');
+		callback();
 	});
-};
+}
 
 function getLimitOffset(limit, offset, params, callback) {
-	db('person_version').select(params).orderBy('fullname').limit(limit).offset(offset)
+	db('person_version').select(params).orderBy(config.orderByParam).limit(limit).offset(offset)
 		.then(function (data) {
 			callback(null, data);
 		})
@@ -30,7 +31,6 @@ function getLimitOffset(limit, offset, params, callback) {
 			callback(err);
 		});
 }
-
 
 
 function getDBLength(callback) {
@@ -41,5 +41,8 @@ function getDBLength(callback) {
 	});
 }
 
-exports.getDBLength = getDBLength;
-exports.getLimitOffset = getLimitOffset;
+module.exports = {
+	getDBLength : getDBLength,
+	getLimitOffset : getLimitOffset,
+	replaceSymbols : replaceSymbols
+};

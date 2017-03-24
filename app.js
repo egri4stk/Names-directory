@@ -1,8 +1,11 @@
-const ww = require('./logic/wordWeight.js');
-const config = require('./config.json');
-const db = require('./logic/db.js');
-const person = require('./logic/person.js');
-const fw = require('./logic/fileWriter.js');
+const app = require('./logic/structure');
 
-let ans = [];
-let arr = [14, 24, 34, 44, 54, 64, 74, 84, 94, 654];
+app.start(function (err) {
+	if(!err){
+		console.log('SUCCESS');
+		return;
+	}
+	console.log(err);
+});
+
+
