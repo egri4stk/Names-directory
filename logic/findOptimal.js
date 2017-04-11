@@ -3,8 +3,10 @@ const person = require('./../db/person.js');
 const async = require('async');
 const wordWeight = require('./../services/wordWeight.js');
 
-function bordersRec(tree, finalCallback) {
-	function getSingleRelativeBorder(length, n) {
+
+function bordersRec(tree, db, finalCallback) {
+
+	function getSingleRelativeBorder(length, n) {  // this function return potential border relative the length
 		if (n > length) {
 			console.log('n > length. error');
 			return length;
@@ -20,20 +22,20 @@ function bordersRec(tree, finalCallback) {
 		}
 	}
 
-	function getOptimaSurround(RelativeBorder, length, skip, tree, finalCallback) {
+	function getOptimaSurround(RelativeBorder, length, skip, tree, finalCallback) { //rec function, which return surround with optimal border
 		let RealBorder = RelativeBorder + skip + tree.offset - 1;
 		if (length === RelativeBorder) {
 			finalCallback(null, {finalId: RealBorder, finalRelativeId: RelativeBorder});
 			return;
 		}
-		let epsStep = Math.round(RelativeBorder * 0.02);
-		epsStep = (epsStep < 10) ? 10 : epsStep;
-		let lEps = epsStep, rEps = epsStep;
-		let lEpsMax = Math.round(RelativeBorder * 0.35);
-		let rEpsMax = length;
+		let epsStep = Math.round(RelativeBorder * 0.1);
+		epsStep = (epsStep < 1) ? 10 : epsStep;
+		let lEps = epsStep;
+		let rEps = epsStep;
+		let lEpsMax = 3 * epsStep;
+		let rEpsMax = (tree.level === 0) ? length - RelativeBorder - 1 : epsStep * 5;
 
-
-		function preEpsCalc(lEps, rEps, callback) {
+		function preEpsCalc(i, lEps, rEps, callback) {  // rec subfunc with return EPS (left and right limits) for search optimal surround
 			if (lEps < 0 || rEps < 0) {
 				callback('lEps or rEps <0');
 				return;
@@ -48,82 +50,55 @@ function bordersRec(tree, finalCallback) {
 				callback('left < 0');
 				return;
 			}
-			async.series([
-				function (callback) {
-					person.getLimitOffset(1, left, ['id', 'fullname'], callback)
-				},
-				function (callback) {
-					person.getLimitOffset(1, right, ['id', 'fullname'], callback)
-				}
-			], function (err, result) {
-				if (err) {
-					callback(err);
-					return;
-				}
-				let leftW = wordWeight.getStringCodeWeight(tree.dimension, result[0][0].fullname);
-				let rightW = wordWeight.getStringCodeWeight(tree.dimension, result[1][0].fullname);
-				let diff = Math.abs(leftW - rightW);
-				if (diff !== 0) {
-					callback(null, {lEps: lEps, rEps: rEps});
-					return;
-				}
-				if (diff === 0 && lEps === lEpsMax && rEps === rEpsMax) {
-					console.log('ATTENTION EPS MAX, AND DIFF = 0');
-					callback(null, {lEps: lEps, rEps: rEps});
-					return;
-				}
-				if (lEps + epsStep < lEpsMax) {
-					lEps += epsStep;
-				}
-				else {
-					lEps = lEpsMax;
-				}
-				if (rEps + epsStep < rEpsMax - 1) {
-					rEps += epsStep;
-				}
-				else {
-					rEps = rEpsMax - 1;
-				}
-				preEpsCalc(lEps, rEps, callback);
-			})
-		}
 
-		async.waterfall([
-			function (callback) {
-				preEpsCalc(lEps, rEps, function (err, res) {
-					callback(err, res);
-				});
-			},
-			function (leftAndRightEps, callback) {
-				let lEps = leftAndRightEps.lEps;
-				let rEps = leftAndRightEps.rEps;
-				let offset = RealBorder - lEps;
-				let limit = lEps + rEps + 1;
-				person.getLimitOffset(limit, offset, ['id', 'fullname'], function (err, data) {
-					if (!err) {
-						let result = {data: data, lEps: lEps, rEps: rEps};
-						callback(null, result);
-						return;
-					}
-					console.log('error');
-					callback(err);
-				});
-			}
-		], function (err, result) {
-			if (!err) {
-				let surround = result.data;
-				let lEps = result.lEps;
-				let optimalId = wordWeight.optimalBorder(surround, tree.dimension);
-				let finalId = RealBorder + (optimalId - lEps);
-				let finalRelativeId = RelativeBorder + (optimalId - lEps);
-				finalCallback(null, {finalId: finalId, finalRelativeId: finalRelativeId});
+			let leftW = wordWeight.getStringCodeWeight(tree.dimension, db[left].fullname);
+			let rightW = wordWeight.getStringCodeWeight(tree.dimension, db[right].fullname);
+			let diff = Math.abs(leftW - rightW);
+			if (diff !== 0) {
+				callback(null, {lEps: lEps, rEps: rEps});
 				return;
 			}
-			finalCallback(err);
+			if (diff === 0 && lEps === lEpsMax && rEps === rEpsMax) {
+				console.log('ATTENTION EPS MAX, AND DIFF = 0');
+				callback(null, {lEps: lEps, rEps: rEps});
+				return;
+			}
+			if (diff === 0) {
+				if (lEps === lEpsMax - 1 && rEps === rEpsMax - 1) {
+					callback(null, {lEps: lEps, rEps: rEps});
+					return;
+				}
+				let newLEps = (lEps + epsStep < lEpsMax) ? lEps + epsStep : lEpsMax - 1;
+				let newREps = (rEps + epsStep < rEpsMax) ? rEps + epsStep : rEpsMax - 1;
+				if (i !== 0 && i % 5 === 0) {
+					setTimeout(function () {
+						preEpsCalc(i + 1, newLEps, newREps, callback);
+					}, 0);
+				} else {
+					preEpsCalc(i + 1, newLEps, newREps, callback);
+				}
+			}
+		}
+
+		preEpsCalc(0, lEps, rEps, function (err, res) {
+			if(err){
+				finalCallback(err);
+				console.log(err);
+				return;
+			}
+			let lEps = res.lEps;
+			let rEps = res.rEps;
+			let offset = RealBorder - lEps;
+			let limit = lEps + rEps + 1;
+			let surround = person.getLimitOffset(db, limit, offset);
+			let optimalId = wordWeight.optimalBorder(surround, tree.dimension);
+			let finalId = RealBorder + (optimalId - lEps);
+			let finalRelativeId = RelativeBorder + (optimalId - lEps);
+			finalCallback(null, {finalId: finalId, finalRelativeId: finalRelativeId});
 		});
 	}
 
-	function rec(length, n, skip) {
+	function rec(i, length, n, skip) {
 		if (length === 0 || n === 0 || length < 0) {
 			finalCallback(null, tree);
 			return;
@@ -132,15 +107,25 @@ function bordersRec(tree, finalCallback) {
 		getOptimaSurround(RelativeBorder, length, skip, tree, function (err, res) {
 			if (!err) {
 				tree.borders.push(res.finalId);
-				rec(length - res.finalRelativeId, n - 1, skip + res.finalRelativeId);
+				if (i !== 0 && i % 80 === 0) {
+					setTimeout(function () {
+						rec(i + 1, length - res.finalRelativeId, n - 1, skip + res.finalRelativeId);
+					}, 0);
+				} else {
+					rec(i + 1, length - res.finalRelativeId, n - 1, skip + res.finalRelativeId);
+				}
+			}
+			else {
+				console.error(err);
+				finalCallback(err);
 			}
 		});
 	}
 
-	rec(tree.length, tree.partsCount, 0);
+	let i = 0;
+	rec(i, tree.length, tree.partsCount, 0);
 }
 
-
 module.exports = {
-	rec : bordersRec
+	rec: bordersRec
 };

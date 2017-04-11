@@ -1,6 +1,26 @@
 const db = require('./db.js').db;
+const pool = require('./db.js').pool;
 const config = require('../config.json');
 const async = require('async');
+
+function getDB(params, callback) {
+	pool.getConnection(function (err, connection) {
+		if (err) {
+			console.log(err);
+			callback(err);
+			return;
+		}
+		connection.query('SELECT ' + params + ' FROM person_version ORDER BY ' + config.orderByParam, function (err, res) {
+			if (!err) {
+				connection.release();
+				callback(null, res);
+				return;
+			}
+			callback(err);
+			connection.release();
+		})
+	});
+}
 
 function replaceSymbols(callback) {
 	async.each(config.replacedSymbols, function (file, callback) {
@@ -22,16 +42,9 @@ function replaceSymbols(callback) {
 	});
 }
 
-function getLimitOffset(limit, offset, params, callback) {
-	db('person_version').select(params).orderBy(config.orderByParam).limit(limit).offset(offset)
-		.then(function (data) {
-			callback(null, data);
-		})
-		.catch(function (err) {
-			callback(err);
-		});
+function getLimitOffset(db, limit, offset) {
+	return db.slice(offset, offset + limit);
 }
-
 
 function getDBLength(callback) {
 	db('person_version').count('id as count').then(function (count) {
@@ -41,8 +54,10 @@ function getDBLength(callback) {
 	});
 }
 
+
 module.exports = {
-	getDBLength : getDBLength,
-	getLimitOffset : getLimitOffset,
-	replaceSymbols : replaceSymbols
+	getDBLength: getDBLength,
+	getLimitOffset: getLimitOffset,
+	replaceSymbols: replaceSymbols,
+	getDB: getDB
 };

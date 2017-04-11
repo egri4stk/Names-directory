@@ -187,3 +187,8 @@ prod-full-name.sql
 10Kusers.sql
 obj.json
 prabook.sql
+write.sql
+answer.json
+incorrectIds.json
+incorrectIds.txt
+incorrectPersons.json

@@ -23,31 +23,23 @@ let Names = class {
 		this.leftRightIds = {left: this.offset, right: this.offset + this.length - 1};
 	}
 
-	setElements(array) {
+	setElements(db, array) {
 		let self = this;
-		async.series([
-			function (callback) {
-				array.forEach(function (item, i, coll) {
-					let offset = (i === 0) ? self.offset : coll[i - 1] + 1;
-					let length = (i === 0) ? item + 1 - offset : item - coll[i - 1];
-					let children = new Names(length, offset, self.dimension + 1, self.level + 1);
-					children.setLeftRightIds();
-					children.setName();
-					self.elements.push(children);
-				});
-				callback(null);
-			},
-			function (callback) {
-				async.each(self.elements, function (element, callback) {
-					structure.getNamesOnLeftRight(element, callback);
-				}, function (err) {
-					callback(err);
-				});
-			}], function (err) {
-			if (err) {
-				console.error(err);
-			}
+		array.forEach(function (item, i, coll) {
+			let offset = (i === 0) ? self.offset : coll[i - 1] + 1;
+			let length = (i === 0) ? item + 1 - offset : item - coll[i - 1];
+			let children = new Names(length, offset, self.dimension + 1, self.level + 1);
+			children.setLeftRightIds();
+			children.setName();
+			self.elements.push(children);
 		});
+		self.elements.forEach(function (element) {
+			structure.getNamesOnLeftRight(db, element);
+		});
+	}
+
+	setPartsCount(parts) {
+		this.partsCount = parts;
 	}
 
 	setName() {
