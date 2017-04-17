@@ -1,5 +1,4 @@
 const config = require('../config.json');
-const async = require('async');
 const structure = require('./../logic/namesTree');
 const microService = require('../services/microService');
 

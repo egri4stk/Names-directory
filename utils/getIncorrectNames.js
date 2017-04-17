@@ -47,7 +47,7 @@ function getIncorrectNames(callback) {
 			otherIncorrect: []
 		};
 		db.forEach(function (element) {
-			let str = element.fullname.toLowerCase();
+			let str = element.fullname;
 			switch (getStrType(3, str)) {
 				case config.strTypes.otherIncorrect :
 					incorrectArrays.otherIncorrect.push(element);

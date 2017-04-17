@@ -55,9 +55,9 @@ function workWithFinishedTree(err, tree, db, mainCallback) { //final subfunction
 }
 
 function main(mainCallback) {  // this function returns full Names Tree
-	getDb(['id,fullname'], function (err, db) {
+	getDb(['id','fullname'], function (err, db) {
 		if (err) {
-			console.err(err);
+			console.error(err);
 			mainCallback(err);
 			return;
 		}
@@ -95,7 +95,7 @@ function getElementsDiff(tree) {    // this function writes in console MAX and M
 	lengths.sort(function (a, b) {
 		return a - b;
 	});
-	return `    MAX\\MIN: ${lengths[lengths.length - 1]} \\ ${lengths[0]}`;
+	return `\t MAX\\MIN: ${lengths[lengths.length - 1]} \\ ${lengths[0]}`;
 }
 
 function getNamesOnLeftRight(db, tree) {   //this function fills names on borders and fills elements with NAMES

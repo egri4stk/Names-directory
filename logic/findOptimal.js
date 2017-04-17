@@ -1,6 +1,5 @@
 const config = require('../config.json');
 const person = require('./../db/person.js');
-const async = require('async');
 const wordWeight = require('./../services/wordWeight.js');
 
 
@@ -122,8 +121,8 @@ function bordersRec(tree, db, finalCallback) {
 		});
 	}
 
-	let i = 0;
-	rec(i, tree.length, tree.partsCount, 0);
+
+	rec(0, tree.length, tree.partsCount, 0);
 }
 
 module.exports = {

@@ -1,24 +1,20 @@
 const db = require('./db.js').db;
-const pool = require('./db.js').pool;
 const config = require('../config.json');
 const async = require('async');
 
 function getDB(params, callback) {
-	pool.getConnection(function (err, connection) {
-		if (err) {
-			console.log(err);
-			callback(err);
-			return;
-		}
-		connection.query('SELECT ' + params + ' FROM person_version ORDER BY ' + config.orderByParam, function (err, res) {
-			if (!err) {
-				connection.release();
-				callback(null, res);
-				return;
-			}
-			callback(err);
-			connection.release();
-		})
+	db('person_version').select(params).orderBy(config.orderByParam).then(function (db) {
+		callback(null, db);
+	}).catch(function (err) {
+		callback(err);
+	});
+}
+
+function getDBLength(callback) {
+	db('person_version').count('id as count').then(function (count) {
+		callback(null, count[0].count);
+	}).catch(function (err) {
+		callback(err);
 	});
 }
 
@@ -44,14 +40,6 @@ function replaceSymbols(callback) {
 
 function getLimitOffset(db, limit, offset) {
 	return db.slice(offset, offset + limit);
-}
-
-function getDBLength(callback) {
-	db('person_version').count('id as count').then(function (count) {
-		callback(null, count[0].count);
-	}).catch(function (err) {
-		callback(err);
-	});
 }
 
 
