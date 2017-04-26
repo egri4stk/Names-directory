@@ -2,16 +2,25 @@ const db = require('./db.js').db;
 const config = require('../config.json');
 const async = require('async');
 
-function getDB(params, callback) {
-	db('person_version').select(params).orderBy(config.orderByParam).then(function (db) {
-		callback(null, db);
-	}).catch(function (err) {
+function getDBandSort(params, callback) {
+	console.log('Database is extracted, please wait')
+	db(config.tableName).select(params)
+		.then(function (db) {
+			let newDB = db.map(function (element) {
+				return {id: element.id, fullname: (element.surname + ' ' + element.name).toLowerCase()}
+			});
+			newDB.sort(function (a, b) {
+				if (a.fullname === b.fullname) return 0;
+				return (a.fullname < b.fullname) ? -1 : 1;
+			});
+			callback(null, newDB);
+		}).catch(function (err) {
 		callback(err);
 	});
 }
 
 function getDBLength(callback) {
-	db('person_version').count('id as count').then(function (count) {
+	db(config.tableName).count('id as count').then(function (count) {
 		callback(null, count[0].count);
 	}).catch(function (err) {
 		callback(err);
@@ -20,7 +29,7 @@ function getDBLength(callback) {
 
 function replaceSymbols(callback) {
 	async.each(config.replacedSymbols, function (file, callback) {
-		db.raw('UPDATE person_version SET surname = REPLACE(surname, "' + file + '", ""), name = REPLACE(name,"' + file + '", "") WHERE surname like "%' + file + '%" or name like "%' + file + '%"')
+		db.raw('UPDATE '+config.tableName+' SET surname = REPLACE(surname, "' + file + '", ""), name = REPLACE(name,"' + file + '", "") WHERE surname like "%' + file + '%" or name like "%' + file + '%"')
 			.then(function () {
 				console.log('update, replaced all ' + file);
 				callback();
@@ -47,5 +56,5 @@ module.exports = {
 	getDBLength: getDBLength,
 	getLimitOffset: getLimitOffset,
 	replaceSymbols: replaceSymbols,
-	getDB: getDB
+	getDB: getDBandSort
 };

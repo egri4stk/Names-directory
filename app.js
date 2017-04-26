@@ -2,7 +2,6 @@ const app = require('./logic/namesTree');
 const getIncorrectNames = require('./utils/getIncorrectNames');
 const optimizeSqlScript = require('./utils/optimizeSqlScript').optimizeSqlScript;
 const config = require('./config.json');
-
 const appModes = config.appModes;
 const appMode = appModes[config.appMode];
 
@@ -12,6 +11,7 @@ switch (appMode) {
 		app.start(function (err) {
 			if (!err) {
 				console.log('SUCCESS');
+				process.exit();
 				return;
 			}
 			console.log(err);
@@ -22,6 +22,7 @@ switch (appMode) {
 		getIncorrectNames.getIncorrectNames(function (err) {
 			if (!err) {
 				console.log('get all incorrect');
+				process.exit();
 				return;
 			}
 			console.log(err);
@@ -42,6 +43,7 @@ switch (appMode) {
 		app.start(function (err) {
 			if (!err) {
 				console.log('SUCCESS');
+				process.exit();
 				return;
 			}
 			console.log(err);

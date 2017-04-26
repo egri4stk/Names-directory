@@ -29,6 +29,12 @@ function maxWithIndex(record, number, index) {
 }
 
 function absDif(dimension, str1, str2) {
+	if (str1.length < dimension) {
+		RightPad(str1, dimension, ' ');
+	}
+	if (str2.length < dimension) {
+		RightPad(str2, dimension, ' ');
+	}
 	let difference = '';
 	let differenceArr = [];
 	for (let i = 0; i < dimension; i++) {

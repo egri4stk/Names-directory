@@ -32,7 +32,7 @@ function specialToStringArray(arr) {
 }
 
 function getIncorrectNames(callback) {
-	getDb(['fullname', 'id'], function (err, db) {
+	getDb(['id','name','surname'], function (err, db) {
 		if (err) {
 			console.error(err);
 			callback(err);

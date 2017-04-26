@@ -1,32 +1,33 @@
 {
+	"dbName": "test",
+	"dbPass": "chex59",
+	"dbHost": "127.0.0.1",
+	"dbUser": "root",
+	"tableName": "person_version",
+	"levelCountArray": [
+		27,
+		200
+	],
+	"appMode": 0,
 	"appModes": [
 		"main",
 		"getIncorrect",
 		"getNewSql"
 	],
-	"appMode": 0,
-	"dbName": "test",
-	"dbPass": "chex59",
-	"dbHost": "127.0.0.1",
-	"dbUser": "root",
-	"levelCountArray": [
-		27,
-		200
-	],
+	"maxLeaveSize": 300,
+	"pathToAnswer": "answer.json",
+	"writeFileStyle": 4,
 	"rootConfig": {
 		"level": 0,
 		"dimension": 2,
 		"offset": 0
 	},
-	"maxLeaveSize": 300,
-	"infoInAnswer": "fullname",
 	"replacedSymbols": [
 		",",
 		".",
 		")",
 		"("
 	],
-	"writeFileStyle": 4,
 	"orderByParam": "fullname",
 	"sliceFromSqlFile": [
 		49,
@@ -36,7 +37,6 @@
 	"sqlScriptBegin": "INSERT into test.person_version (`id`,`name`,`surname`) values",
 	"pathToOriginalSqlScript": "./resources/prabook.sql",
 	"pathToNewSqlScript": "./resources/write.sql",
-	"pathToAnswer": "answer.json",
 	"strTypes": {
 		"correct": "correct",
 		"firstLiteralIncorrect": "firstLiteralIncorrect",

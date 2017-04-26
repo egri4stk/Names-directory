@@ -44,7 +44,7 @@ function workWithFinishedTree(err, tree, db, mainCallback) { //final subfunction
 	tree.elements.forEach(function (item) {
 		console.log(item.interval);
 	});
-	getPersonsForTree(db, tree, config.infoInAnswer, 0, function () {
+	getPersonsForTree(db, tree, config.orderByParam, 0, function () {
 		let clearTree = new ClearNames(tree.interval, tree.persons);
 		createClearFullTree(tree, clearTree, 0, function () {
 			fileWriter.write(clearTree, config.pathToAnswer, function (err) {
@@ -55,7 +55,7 @@ function workWithFinishedTree(err, tree, db, mainCallback) { //final subfunction
 }
 
 function main(mainCallback) {  // this function returns full Names Tree
-	getDb(['id','fullname'], function (err, db) {
+	getDb(['id','name','surname'], function (err, db) {
 		if (err) {
 			console.error(err);
 			mainCallback(err);
