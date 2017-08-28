@@ -16,6 +16,7 @@
 	],
 	"maxLeaveSize": 300,
 	"pathToAnswer": "answer.json",
+	"pathToShortAnswer" : "mainIntervals.json",
 	"writeFileStyle": 4,
 	"rootConfig": {
 		"level": 0,
@@ -35,7 +36,7 @@
 	],
 	"sqlInsertForOneTime": 1000,
 	"sqlScriptBegin": "INSERT into test.person_version (`id`,`name`,`surname`) values",
-	"pathToOriginalSqlScript": "./resources/prabook.sql",
+	"pathToOriginalSqlScript": "./resources/prabook-test.sql",
 	"pathToNewSqlScript": "./resources/write.sql",
 	"strTypes": {
 		"correct": "correct",

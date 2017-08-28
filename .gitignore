@@ -192,3 +192,5 @@ answer.json
 incorrectIds.json
 incorrectIds.txt
 incorrectPersons.json
+*.sql
+*.zip

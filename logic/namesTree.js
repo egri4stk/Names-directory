@@ -48,7 +48,26 @@ function workWithFinishedTree(err, tree, db, mainCallback) { //final subfunction
 		let clearTree = new ClearNames(tree.interval, tree.persons);
 		createClearFullTree(tree, clearTree, 0, function () {
 			fileWriter.write(clearTree, config.pathToAnswer, function (err) {
-				mainCallback(err);
+				if(err){
+					mainCallback(err);
+					return;
+				}
+				let intervals = {
+					names : [],
+					ids : []
+				};
+
+				clearTree.elements.forEach(function (item) {
+					intervals.names.push(item.name);
+					intervals.ids.push(item.intervalID);
+				});
+				fileWriter.write(intervals, config.pathToShortAnswer, function (err) {
+					if (err) {
+						mainCallback(err);
+						return;
+					}
+					mainCallback();
+				});
 			});
 		});
 	});
@@ -171,6 +190,8 @@ function getPersonsForTree(db, tree, property, i, callback) { //this function fi
 		});
 	}
 }
+
+
 
 module.exports.start = main;
 module.exports.getNamesOnLeftRight = getNamesOnLeftRight;

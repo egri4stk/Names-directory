@@ -1,14 +1,16 @@
+var uniqid = require('uniqid');
 let ClearNames = class {
 	constructor(interval,persons){
-		this.persons = persons;
+		this.persons = [];
 		this.name = interval;
-		this.elements = [];
+		this.intervalID = uniqid();
+		this.elements = persons;
 	}
 
 	setElements(elements) {
 		let self = this;
-		elements.forEach(function (element) {
-			let children = new ClearNames(element.interval, element.persons);//, element.left, element.right);
+		elements.forEach(function (element,i) {
+			let children = new ClearNames(element.interval, element.persons);
 			self.elements.push(children);
 		})
 	}

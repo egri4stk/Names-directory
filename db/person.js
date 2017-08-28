@@ -1,13 +1,15 @@
 const db = require('./db.js').db;
 const config = require('../config.json');
 const async = require('async');
+const stringCleaning = require('../services/microService').stringCleaning;
 
 function getDBandSort(params, callback) {
-	console.log('Database is extracted, please wait')
+	console.log('Database is extracted, please wait');
 	db(config.tableName).select(params)
 		.then(function (db) {
 			let newDB = db.map(function (element) {
-				return {id: element.id, fullname: (element.surname + ' ' + element.name).toLowerCase()}
+				let fullname = (element.surname + ' ' + element.name).toLowerCase();
+				return {id: element.id, fullname: stringCleaning(fullname,3)}
 			});
 			newDB.sort(function (a, b) {
 				if (a.fullname === b.fullname) return 0;
@@ -18,6 +20,8 @@ function getDBandSort(params, callback) {
 		callback(err);
 	});
 }
+
+
 
 function getDBLength(callback) {
 	db(config.tableName).count('id as count').then(function (count) {
