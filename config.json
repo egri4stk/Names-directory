@@ -29,7 +29,7 @@
 		")",
 		"("
 	],
-	"orderByParam": "fullname",
+	"orderByParam": "id",
 	"sliceFromSqlFile": [
 		49,
 		-1

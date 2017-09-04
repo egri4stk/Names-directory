@@ -47,34 +47,33 @@ function workWithFinishedTree(err, tree, db, mainCallback) { //final subfunction
 	getPersonsForTree(db, tree, config.orderByParam, 0, function () {
 		let clearTree = new ClearNames(tree.interval, tree.persons);
 		createClearFullTree(tree, clearTree, 0, function () {
-			fileWriter.write(clearTree, config.pathToAnswer, function (err) {
-				if(err){
-					mainCallback(err);
-					return;
+			async.parallel([
+				function (callback) {
+					fileWriter.write({intervals: clearTree.elements}, config.pathToAnswer, callback);
+				},
+				function (callback) {
+					let intervals = {
+						names: []
+					};
+					clearTree.elements.forEach(function (item) {
+						var subIntervals = [];
+						item.elements.forEach(function (element) {
+							subIntervals.push({name: element.name, id: element.intervalID, persons: element.elements });
+						});
+						intervals.names.push({name: item.name, id: item.intervalID, subIntervals: subIntervals});
+					});
+					fileWriter.write(intervals, config.pathToShortAnswer, callback);
 				}
-				let intervals = {
-					names : [],
-					ids : []
-				};
-
-				clearTree.elements.forEach(function (item) {
-					intervals.names.push(item.name);
-					intervals.ids.push(item.intervalID);
-				});
-				fileWriter.write(intervals, config.pathToShortAnswer, function (err) {
-					if (err) {
-						mainCallback(err);
-						return;
-					}
-					mainCallback();
-				});
+			], function (err) {
+				mainCallback(err);
+				return;
 			});
 		});
 	});
 }
 
 function main(mainCallback) {  // this function returns full Names Tree
-	getDb(['id','name','surname'], function (err, db) {
+	getDb(['id', 'name', 'surname'], function (err, db) {
 		if (err) {
 			console.error(err);
 			mainCallback(err);
@@ -190,7 +189,6 @@ function getPersonsForTree(db, tree, property, i, callback) { //this function fi
 		});
 	}
 }
-
 
 
 module.exports.start = main;
